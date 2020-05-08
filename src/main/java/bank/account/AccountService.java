@@ -39,10 +39,38 @@ public class AccountService {
     }
 
     private String generateCardNumber() {
-        StringBuilder cardNumber = new StringBuilder("400000");
-        for (int i = 0; i < 10; i++) {
-            cardNumber.append(random.nextInt(10));
+        int[] digits = new int[16];
+        digits[0] = 4;
+
+        for (int i = 6; i < 15; i++) {
+            digits[i] = random.nextInt(10);
         }
+
+        int sum = 0;
+
+        for (int i = 0; i < 15; i++) {
+            int number = digits[i];
+
+            if (i % 2 == 0) {
+                number *= 2;
+            }
+
+            if (number > 9) {
+                number -= 9;
+            }
+
+            sum += number;
+        }
+
+        if (sum % 10 != 0) {
+            digits[15] = 10 - sum % 10;
+        }
+
+        StringBuilder cardNumber = new StringBuilder();
+        for (int digit : digits) {
+            cardNumber.append(digit);
+        }
+
         return cardNumber.toString();
     }
 
