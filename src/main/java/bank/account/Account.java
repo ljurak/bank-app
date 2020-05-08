@@ -1,4 +1,4 @@
-package bank;
+package bank.account;
 
 import java.util.Objects;
 
@@ -25,6 +25,10 @@ public class Account {
 
     public int getBalance() {
         return balance;
+    }
+
+    public void setBalance(int balance) {
+        this.balance = balance;
     }
 
     @Override
