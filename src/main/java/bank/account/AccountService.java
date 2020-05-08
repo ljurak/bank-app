@@ -1,12 +1,16 @@
-package bank;
+package bank.account;
 
 import java.util.Random;
 
 public class AccountService {
 
-    private AccountRepository accountRepo = new AccountRepository();
+    private final AccountRepository accountRepo;
 
     private Random random = new Random();
+
+    public AccountService(AccountRepository accountRepo) {
+        this.accountRepo = accountRepo;
+    }
 
     public Account createAccount() {
         Account account = null;
