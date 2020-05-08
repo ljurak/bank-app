@@ -1,5 +1,6 @@
 package bank.account;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class AccountService {
@@ -30,6 +31,10 @@ public class AccountService {
         return account;
     }
 
+    public Account findAccount(String cardNumber) {
+        return accountRepo.findAccount(cardNumber);
+    }
+
     public Account logIntoAccount(String cardNumber, String pin) {
         Account account = accountRepo.findAccount(cardNumber);
 
@@ -40,6 +45,57 @@ public class AccountService {
         }
 
         return null;
+    }
+
+    public void depositMoney(Account account, int money) {
+        account.setBalance(account.getBalance() + money);
+        accountRepo.updateAccount(account);
+    }
+
+    public void transferMoney(Account from, Account to, int money) {
+        if (money > from.getBalance()) {
+            return;
+        }
+
+        from.setBalance(from.getBalance() - money);
+        to.setBalance(to.getBalance() + money);
+
+        accountRepo.updateAccount(from);
+        accountRepo.updateAccount(to);
+    }
+
+    public void closeAccount(Account account) {
+        accountRepo.deleteAccount(account);
+    }
+
+    public boolean checkCardNumberFormat(String cardNumber) {
+        if (!cardNumber.matches("\\d{16}")) {
+            return false;
+        }
+
+        int[] digits = Arrays.stream(cardNumber.split(""))
+                .mapToInt(Integer::parseInt)
+                .toArray();
+
+        int sum = 0;
+
+        for (int i = 0; i < 15; i++) {
+            int number = digits[i];
+
+            if (i % 2 == 0) {
+                number *= 2;
+            }
+
+            if (number > 9) {
+                number -= 9;
+            }
+
+            sum += number;
+        }
+
+        sum += digits[15];
+
+        return sum % 10 == 0;
     }
 
     private String generateCardNumber() {
