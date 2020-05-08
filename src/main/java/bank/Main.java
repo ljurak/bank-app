@@ -76,13 +76,16 @@ public class Main {
 
     private static void showAccountMenu() {
         System.out.println("1. Balance");
-        System.out.println("2. Log out");
+        System.out.println("2. Add income");
+        System.out.println("3. Transfer money");
+        System.out.println("4. Close account");
+        System.out.println("5. Log out");
         System.out.println("0. Exit");
     }
 
     private static void createAccount(AccountService accountService) {
         Account account = accountService.createAccount();
-        System.out.println("Your card have been created");
+        System.out.println("Your card have been created.");
         System.out.println("Your card number: " + account.getCardNumber());
         System.out.println("Your card PIN: " + account.getPin());
         System.out.println();
@@ -99,32 +102,91 @@ public class Main {
         Account account = accountService.logIntoAccount(cardNumber, pin);
 
         if (account != null) {
-            System.out.println("You have successfully logged in!" + System.lineSeparator());
-
-            showAccountMenu();
-            int option;
-            while ((option = Integer.parseInt(scanner.nextLine())) != 0) {
-                System.out.println();
-
-                switch (option) {
-                    case 1:
-                        System.out.println("Balance: " + account.getBalance() + System.lineSeparator());
-                        break;
-                    case 2:
-                        System.out.println("You have successfully logged out!" + System.lineSeparator());
-                        return;
-                    default:
-                        System.out.println("Incorrect option. Try again." + System.lineSeparator());
-                        break;
-                }
-
-                showAccountMenu();
-            }
-
-            System.out.println();
+            processLoggedUser(accountService, account);
         } else {
             System.out.println("Wrong card number or PIN!" + System.lineSeparator());
         }
+    }
+
+    private static void processLoggedUser(AccountService accountService, Account account) {
+        System.out.println("You have successfully logged in!" + System.lineSeparator());
+
+        showAccountMenu();
+        int option;
+        while ((option = Integer.parseInt(scanner.nextLine())) != 0) {
+            System.out.println();
+
+            switch (option) {
+                case 1:
+                    System.out.println("Balance: " + account.getBalance() + System.lineSeparator());
+                    break;
+                case 2:
+                    depositMoney(accountService, account);
+                    break;
+                case 3:
+                    transferMoney(accountService, account);
+                    break;
+                case 4:
+                    closeAccount(accountService, account);
+                    return;
+                case 5:
+                    System.out.println("You have successfully logged out!" + System.lineSeparator());
+                    return;
+                default:
+                    System.out.println("Incorrect option. Try again." + System.lineSeparator());
+                    break;
+            }
+
+            showAccountMenu();
+        }
+
+        System.out.println();
+    }
+
+    private static void depositMoney(AccountService accountService, Account account) {
+        System.out.println("How much money would you like to deposit:");
+        int money = Integer.parseInt(scanner.nextLine());
+        System.out.println();
+
+        accountService.depositMoney(account, money);
+        System.out.println("Money has been deposited into your account." + System.lineSeparator());
+    }
+
+    private static void transferMoney(AccountService accountService, Account account) {
+        System.out.println("Enter account number for money transfer:");
+        String cardNumber = scanner.nextLine();
+        System.out.println("Enter amount of money:");
+        int money = Integer.parseInt(scanner.nextLine());
+        System.out.println();
+
+        if (money > account.getBalance()) {
+            System.out.println("Insufficient money!" + System.lineSeparator());
+            return;
+        }
+
+        if (account.getCardNumber().equals(cardNumber)) {
+            System.out.println("You can't transfer money to the same account!" + System.lineSeparator());
+            return;
+        }
+
+        if (!accountService.checkCardNumberFormat(cardNumber)) {
+            System.out.println("Probably you made mistake in card number. Please try again!" + System.lineSeparator());
+            return;
+        }
+
+        Account transferAccount = accountService.findAccount(cardNumber);
+        if (transferAccount == null) {
+            System.out.println("Such a card does not exist!" + System.lineSeparator());
+            return;
+        }
+
+        accountService.transferMoney(account, transferAccount, money);
+        System.out.println("Money has been transferred." + System.lineSeparator());
+    }
+
+    private static void closeAccount(AccountService accountService, Account account) {
+        accountService.closeAccount(account);
+        System.out.println("Your account has been closed." + System.lineSeparator());
     }
 
     private static void createDatabase(ConnectionProvider connectionProvider) {
