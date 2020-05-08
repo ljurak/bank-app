@@ -21,4 +21,14 @@ public class InMemoryAccountRepository implements AccountRepository {
     public Account findAccount(String cardNumber) {
         return accounts.get(cardNumber);
     }
+
+    @Override
+    public void updateAccount(Account account) {
+        accounts.put(account.getCardNumber(), account);
+    }
+
+    @Override
+    public void deleteAccount(Account account) {
+        accounts.remove(account.getCardNumber());
+    }
 }
